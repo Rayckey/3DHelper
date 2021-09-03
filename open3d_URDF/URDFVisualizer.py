@@ -1,12 +1,13 @@
-from src import (
-    URDFParser,
-    URDFTree,
-    SceneGraph,
-)
+#!/usr/bin/env python3
+
+from src import  URDFParser, URDFTree, SceneGraph
+
+
+import pdb
 import open3d as o3d
 
 if __name__ == "__main__":
-    URDF_file = "/Users/shawn/Desktop/3DHelper/data/45194_urdf/mobility.urdf"
+    URDF_file = "/home/rocky/moveit_vkc_ws/src/robot_description/husky_ur_description/open3d/blender_use_2.urdf"
     # Parse the URDF file
     parser = URDFParser(URDF_file)
     parser.parse()

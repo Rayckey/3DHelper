@@ -2,11 +2,14 @@ from .SceneNode import SceneNode
 import open3d as o3d
 import numpy as np
 
+import pdb
 
 class SceneGraph:
-    def __init__(self, rootLink):
+    def __init__(self, rootLink, joint_names, joint_angles):
         self.root = SceneNode()
-        self.constructNode(self.root, rootLink)
+        self.constructNode(self.root, rootLink, joint_names, joint_angles)
+        self.joint_names = joint_names
+        self.joint_angles = joint_angles
 
     def update(self):
         self.root.update()
@@ -20,13 +23,13 @@ class SceneGraph:
             if mesh.has_textures() == True:
                 new_meshes.append(mesh)
             else:
-                mesh.paint_uniform_color([np.random.rand(), np.random.rand(), np.random.rand()])
+                mesh.paint_uniform_color([0.5,0.5,0.5])
                 mesh_without_texture += mesh
         if len(mesh_without_texture.vertices) != 0:
             new_meshes.append(mesh_without_texture)
         return new_meshes
 
-    def constructNode(self, node, link):
+    def constructNode(self, node, link, joint_names, joint_angles):
         node.name = link.link.link_name
         node.joint = link.joint
         if node.joint != None:
@@ -35,12 +38,20 @@ class SceneGraph:
             joint_rpy = node.joint.origin["rpy"]
             node.rotateXYZ(joint_rpy)
             node.translate(joint_xyz)
+            if node.joint.joint_name in joint_names:
+                angle = joint_angles[joint_names.index(node.joint.joint_name)]
+                if node.joint.joint_type == 'prismatic':
+                    node.translate(node.joint.axis * angle)
+                else:
+                    node.rotate(node.joint.axis, angle)
         # Construct the mesh nodes for multiple visuals in link
         visuals = link.link.visuals
+        # pdb.set_trace()
         for visual in visuals:
             visual_node = SceneNode(node)
             node.addChild(visual_node)
-            visual_node.name = node.name + "_mesh:" + visual.visual_name
+            # visual_node.name = node.name + "_mesh:" + visual.visual_name
+            visual_node.name = node.name + "_mesh"
             if visual.geometry_mesh["filename"] == None:
                 raise RuntimeError("Invalid File path")
             visual_node.addMeshFile(visual.geometry_mesh["filename"])
@@ -54,4 +65,4 @@ class SceneGraph:
         for child in link.children:
             child_node = SceneNode(node)
             node.addChild(child_node)
-            self.constructNode(child_node, child)
+            self.constructNode(child_node, child, joint_names, joint_angles)
