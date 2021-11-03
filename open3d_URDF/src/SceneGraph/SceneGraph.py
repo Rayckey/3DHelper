@@ -40,10 +40,13 @@ class SceneGraph:
             node.translate(joint_xyz)
             if node.joint.joint_name in joint_names:
                 angle = joint_angles[joint_names.index(node.joint.joint_name)]
-                if node.joint.joint_type == 'prismatic':
-                    node.translate(node.joint.axis * angle)
+                if angle == 0.0:
+                    pass
                 else:
-                    node.rotate(node.joint.axis, angle)
+                    if node.joint.joint_type == 'prismatic':
+                        node.translate(node.joint.axis * angle)
+                    else:
+                        node.rotate(node.joint.axis, angle)
         # Construct the mesh nodes for multiple visuals in link
         visuals = link.link.visuals
         # pdb.set_trace()

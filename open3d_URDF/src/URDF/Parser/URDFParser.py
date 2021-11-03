@@ -81,12 +81,15 @@ class URDFParser:
                 axis = parseThreeNumber(axis_xml.attrib["xyz"])
                 joint.setAxis(axis)
             # Get Limit
-            limit_xml = joint_xml.find("limit")
-            if limit_xml != None:
-                lower = float(limit_xml.attrib["lower"])
-                upper = float(limit_xml.attrib["upper"])
-                joint.setLimitLower(lower)
-                joint.setLimitUpper(upper)
+            if joint_xml.attrib['type'] == 'continuous':
+                pass
+            else:
+                limit_xml = joint_xml.find("limit")
+                if limit_xml != None:
+                    lower = float(limit_xml.attrib["lower"])
+                    upper = float(limit_xml.attrib["upper"])
+                    joint.setLimitLower(lower)
+                    joint.setLimitUpper(upper)
             self.joints[joint_name] = joint
 
 
